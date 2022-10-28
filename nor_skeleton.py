@@ -1,5 +1,4 @@
-from genericpath import isdir
-from androguard.misc import AnalyzeAPK, get_default_session,APK
+from androguard.misc import AnalyzeAPK, get_default_session
 import pandas as pd
 import os
 from SCRIPTS.BASE import *
@@ -25,7 +24,7 @@ ALL_API= pd.read_csv("C:\\PROJECT\\AG\\complete\\SCRIPTS\\apilist.csv")
 ALL_API=list(ALL_API.to_dict().keys())
 
 #데이터 프레임 세팅
-COLUMN= ['name','sha256','min-sdk','target-sdk','max-sdk']+ALL_PERMISSION+ ALL_MANIFEST+ALL_OPCODE+ALL_API+['family','label']
+COLUMN= ['name','sha256','min-sdk','target-sdk','max-sdk']+ALL_PERMISSION+ ALL_MANIFEST+ALL_OPCODE+ALL_API+['res_asset_dex_cnt','family','label']
 df = pd.DataFrame(columns=COLUMN)
 df = df.to_dict('list')                      
 
@@ -112,20 +111,24 @@ if __name__=="__main__":
                     api_cnt.append(API_CNT[j])
                 else:
                     api_cnt.append(0)
-            tmp +=api_cnt                    
+            tmp +=api_cnt             
+            
+            res_count = file_res(a,d,dx)
+            tmp.append(res_count)       
                 
             # df['family'].append(up_folder)
             tmp.append("normal")
             # df['label'].append(1)
-            tmp.append(1)
+            tmp.append(0)
                 
         except:
             with open(TARGET,"rb") as file:
                 file=file.read()
             enc = hashlib.sha256(file).hexdigest()
             df_error['sha256'].append(enc)
+            continue
                 
-                    
+        
         for i,j in enumerate(COLUMN):
             df[j].append(tmp[i])
                 

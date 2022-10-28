@@ -74,3 +74,15 @@ def API(a,d,dx,flag =0):
                 if temp_list[1] == "content" or temp_list[1] == "app" or temp_list[1] == "bluetooth" or temp_list[1] == "location" or temp_list[1] == "media" or temp_list[1] == "net" or temp_list[1] == "nfc" or temp_list[1] == "provider" or temp_list[1] == "telecom" or temp_list[1] == "telephony":
                     res.append(temp_list[-1] + call.name)
     return list(res)
+
+
+## res 파일 내부에 들어있는 파일들 중 .dex 파일 감지
+dex_byte_code = b'\x64\x65\x78\x0a\x30\x33\x35\x00'
+def file_res(a,d,dx):
+    count = 0
+    for i in a.get_files():
+        if ('asset' in i) or ('res' in i):
+            result = a.get_file(i)
+            if result[:8] == dex_byte_code:
+                count+=1
+    return count
