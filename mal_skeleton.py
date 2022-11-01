@@ -20,7 +20,7 @@ for i in range(256):
     ALL_OPCODE.append(i)
 
 #API 세팅
-ALL_API= pd.read_csv("C:\\PROJECT\\AG\\complete\\SCRIPTS\\apilist.csv")
+ALL_API= pd.read_csv(".\\SCRIPTS\\apilist.csv")
 ALL_API=list(ALL_API.to_dict().keys())
 
 #데이터 프레임 세팅
@@ -133,6 +133,6 @@ if __name__=="__main__":
                 df[j].append(tmp[i])
                 
     df = pd.DataFrame.from_dict(df)
-    df.to_csv("./RESULT/done.csv")
+    df.to_csv("./RESULT/mal_done.csv")
     df_error = pd.DataFrame.from_dict(df_error)
-    df_error.to_csv("./ERROR/error.csv")
+    df_error.to_csv("./ERROR/mal_error.csv")
