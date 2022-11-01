@@ -1,4 +1,4 @@
-from androguard.misc import AnalyzeAPK, get_default_session
+from androguard.misc import AnalyzeAPK
 import pandas as pd
 import os
 from SCRIPTS.BASE import *
@@ -31,8 +31,7 @@ df = df.to_dict('list')
 #error 관련 데이터 셋
 df_error = pd.DataFrame(columns=['sha256'])
 df_error = df_error.to_dict('list')
-
-sess = get_default_session()                               
+                           
 
 if __name__=="__main__":
     for target_file in os.listdir("./INPUT"):
@@ -45,7 +44,7 @@ if __name__=="__main__":
             tmp.append(target_file)
             
             ## 전반적 분석 진행
-            a,d,dx = AnalyzeAPK(TARGET,session=sess)
+            a,d,dx = AnalyzeAPK(TARGET)
             
             ##'sha256','min-sdk','target-sdk','max-sdk'
             tmp.append(a._sha256)
