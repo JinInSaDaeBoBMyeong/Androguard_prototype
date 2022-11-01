@@ -44,7 +44,7 @@ if __name__=="__main__":
             tmp.append(target_file)
             
             ## 전반적 분석 진행
-            a,d,dx = AnalyzeAPK(TARGET)
+            a,d,dx = AnalyzeAPK(TARGET,raw=True)
             
             ##'sha256','min-sdk','target-sdk','max-sdk'
             tmp.append(a._sha256)
