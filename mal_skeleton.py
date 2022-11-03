@@ -4,6 +4,7 @@ import os
 from SCRIPTS.BASE import *
 from collections import Counter
 import hashlib
+from tqdm import tqdm
 
 #컬럼 합칠 예정
 ALL_PERMISSION=['android.permission.ACCEPT_HANDOVER', 'android.permission.ACCESS_BACKGROUND_LOCATION', 'android.permission.ACCESS_BLOBS_ACROSS_USERS', 'android.permission.ACCESS_CHECKIN_PROPERTIES', 'android.permission.ACCESS_COARSE_LOCATION', 'android.permission.ACCESS_FINE_LOCATION', 'android.permission.ACCESS_LOCATION_EXTRA_COMMANDS', 'android.permission.ACCESS_MEDIA_LOCATION', 'android.permission.ACCESS_NETWORK_STATE', 'android.permission.ACCESS_NOTIFICATION_POLICY', 'android.permission.ACCESS_WIFI_STATE', 'android.permission.ACCOUNT_MANAGER', 'android.permission.ACTIVITY_RECOGNITION', 'com.android.voicemail.permission.ADD_VOICEMAIL', 'android.permission.ANSWER_PHONE_CALLS', 'android.permission.BATTERY_STATS', 'android.permission.BIND_ACCESSIBILITY_SERVICE', 'android.permission.BIND_APPWIDGET', 'android.permission.BIND_AUTOFILL_SERVICE', 'android.permission.BIND_CALL_REDIRECTION_SERVICE', 'android.permission.BIND_CARRIER_MESSAGING_CLIENT_SERVICE', 'android.permission.BIND_CARRIER_MESSAGING_SERVICE', 'android.permission.BIND_CARRIER_SERVICES', 'android.permission.BIND_CHOOSER_TARGET_SERVICE', 'android.permission.BIND_COMPANION_DEVICE_SERVICE', 
@@ -29,27 +30,33 @@ df = pd.DataFrame(columns=COLUMN)
 df = df.to_dict('list')                      
 
 #error 관련 데이터 셋
-df_error = pd.DataFrame(columns=['sha256'])
+df_error = pd.DataFrame(columns=['name''sha256'])
 df_error = df_error.to_dict('list')
 
-sess = get_default_session()                     
+#Config if you want
+PATH= "./INPUT/"
 
 if __name__=="__main__":
-    for up_folder in os.listdir("./INPUT"):
-        for target_file in os.listdir("./INPUT/"+up_folder):
+    for up_folder in os.listdir(PATH):
+        print(f"[*]DOING {up_folder}")
+        for target_file in tqdm(os.listdir(PATH+up_folder)):
             try:
-                TARGET = "./INPUT//"+up_folder+"//"+target_file
-                print(f"[*]Doing {target_file}")
+                TARGET = PATH+up_folder+"//"+target_file
+                # print(f"[*]Doing {target_file}")
                 
                 tmp=[]
                 
                 tmp.append(target_file)
                 
                 ## 전반적 분석 진행
-                a,d,dx = AnalyzeAPK(TARGET,session=sess)
+                a,d,dx = AnalyzeAPK(TARGET)
                 
                 ##'sha256','min-sdk','target-sdk','max-sdk'
-                tmp.append(a._sha256)
+                with open(TARGET,"rb") as file:
+                    file=file.read()
+                enc_1 = hashlib.sha256(file).hexdigest()
+                tmp.append(enc_1)
+                
                 #min-sdk
                 tmp.append(a.get_min_sdk_version())
                 #target-sdk
@@ -59,7 +66,7 @@ if __name__=="__main__":
                 
                 
                 #PERMISSION 추출
-                PERMISSION = permission(a,d,dx,0)
+                PERMISSION = permission(a)
 
                 #컬럼 PERMISSION 세팅 - 1                
                 for i in ALL_PERMISSION:
@@ -69,53 +76,33 @@ if __name__=="__main__":
                         # df[i].append('0')
                         tmp.append(0)
                         
-                
-                
-                #MANIFEST 추출
-                ACTIVITY = activity(a,d,dx,0)
-                SERVICE =  services(a,d,dx,0)
-                RECEIVER = receivers(a,d,dx,0)
-                
-                MANIFEST =[len(ACTIVITY),len(SERVICE),len(RECEIVER)]   
-
-                #MANIFEST 세팅
                 # df['ACTIVITY'].append(MANIFEST[0])
-                tmp.append(MANIFEST[0])
+                tmp.append(len(activity(a)))
                 # df['SERVICE'].append(MANIFEST[1])
-                tmp.append(MANIFEST[1])
+                tmp.append(len(services(a)))
                 # df['RECEIVER'].append(MANIFEST[2])
-                tmp.append(MANIFEST[2])
+                tmp.append(len(receivers(a)))
 
-                cnt_tmp = 0
-                opcode_seq = []
-                
                 ##opcode 수
-                OPCODE_CNT = opcode_cnt(a,d,dx,0)
+                OPCODE_CNT = opcode_cnt(dx)
                 
                 #OPCODE 세팅
                 for i,_ in enumerate(ALL_OPCODE):
                     if i in OPCODE_CNT.keys():
-                        opcode_seq.append(OPCODE_CNT[i])
+                        tmp.append(OPCODE_CNT[i])
                     else:
-                        opcode_seq.append(0)
-                    
-                for i,_ in enumerate(ALL_OPCODE):
-                    # df[i].append(opcode_seq[i])
-                    tmp.append(opcode_seq[i])
+                        tmp.append(0)
                     
                 ##api_call
-                API_CNT = API(a,d,dx)
-                API_CNT = Counter(API_CNT)
-                api_cnt=[]
+                API_CNT = Counter(API(dx))
+                
                 for i,j in enumerate(ALL_API):
                     if j in API_CNT.keys():
-                        api_cnt.append(API_CNT[j])
+                        tmp.append(API_CNT[j])
                     else:
-                        api_cnt.append(0)
-                tmp +=api_cnt
+                        tmp.append(0)
                 
-                res_count = file_res(a,d,dx)
-                tmp.append(res_count)
+                tmp.append(file_res(a))
                     
                 # df['family'].append(up_folder)
                 tmp.append(up_folder)
@@ -123,6 +110,7 @@ if __name__=="__main__":
                 tmp.append(1)
                     
             except:
+                print("ERROR IS OCCURED")
                 with open(TARGET,"rb") as file:
                     file=file.read()
                 enc = hashlib.sha256(file).hexdigest()
