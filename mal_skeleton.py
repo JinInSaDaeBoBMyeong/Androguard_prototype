@@ -34,7 +34,7 @@ df_error = pd.DataFrame(columns=['name','sha256'])
 df_error = df_error.to_dict('list')
 
 #Config if you want
-PATH= "D:\\download\\악성\\"
+PATH= "./INPUT/"
 
 if __name__=="__main__":
     for up_folder in os.listdir(PATH):
@@ -116,7 +116,7 @@ if __name__=="__main__":
                 enc = hashlib.sha256(file).hexdigest()
                 df_error['name'].append(target_file)
                 df_error['sha256'].append(enc)
-                break
+                continue
             
             for i,j in enumerate(COLUMN):
                 df[j].append(tmp[i])
