@@ -111,7 +111,7 @@ if __name__=="__main__":
             with open(TARGET,"rb") as file:
                 file=file.read()
             enc = hashlib.sha256(file).hexdigest()
-            df_error['name']=target_file
+            df_error['name'].append(target_file)
             df_error['sha256'].append(enc)
             continue
                 

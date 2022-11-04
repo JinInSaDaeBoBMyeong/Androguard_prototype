@@ -30,11 +30,11 @@ df = pd.DataFrame(columns=COLUMN)
 df = df.to_dict('list')                      
 
 #error 관련 데이터 셋
-df_error = pd.DataFrame(columns=['name''sha256'])
+df_error = pd.DataFrame(columns=['name','sha256'])
 df_error = df_error.to_dict('list')
 
 #Config if you want
-PATH= "./INPUT/"
+PATH= "D:\\download\\악성\\"
 
 if __name__=="__main__":
     for up_folder in os.listdir(PATH):
@@ -114,8 +114,9 @@ if __name__=="__main__":
                 with open(TARGET,"rb") as file:
                     file=file.read()
                 enc = hashlib.sha256(file).hexdigest()
+                df_error['name'].append(target_file)
                 df_error['sha256'].append(enc)
-                continue
+                break
             
             for i,j in enumerate(COLUMN):
                 df[j].append(tmp[i])
