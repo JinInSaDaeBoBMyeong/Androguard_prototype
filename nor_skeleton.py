@@ -105,15 +105,20 @@ if __name__=="__main__":
             tmp.append(target_file)
             # df['label'].append(1)
             tmp.append(1)
+        except KeyboardInterrupt:
+            break
                 
         except:
-            print("ERROR IS OCCURED")
-            with open(TARGET,"rb") as file:
-                file=file.read()
-            enc = hashlib.sha256(file).hexdigest()
-            df_error['name'].append(target_file)
-            df_error['sha256'].append(enc)
-            continue
+            try:
+                print("ERROR IS OCCURED")
+                with open(TARGET,"rb") as file:
+                    file=file.read()
+                enc = hashlib.sha256(file).hexdigest()
+                df_error['name'].append(target_file)
+                df_error['sha256'].append(enc)
+                continue
+            except:
+                break
                 
         
         for i,j in enumerate(COLUMN):
